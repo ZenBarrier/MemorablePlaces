@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,7 +35,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         setTitle("My Map");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         geocoder = new Geocoder(this, Locale.getDefault());
         ArrayList<String> sentPlaces = getIntent().getStringArrayListExtra("places");
@@ -128,9 +131,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         String selectedPlace = getIntent().getStringExtra("selectedPlace");
         if (selectedPlace != null) {
-            List<Address> addressList = null;
             try {
-                addressList = geocoder.getFromLocationName(selectedPlace, 1);
+                List<Address> addressList = geocoder.getFromLocationName(selectedPlace, 1);
                 if (addressList.size() > 0) {
                     double lat = addressList.get(0).getLatitude();
                     double lng = addressList.get(0).getLongitude();
