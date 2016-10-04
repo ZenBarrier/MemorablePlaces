@@ -23,7 +23,7 @@ import java.util.Locale;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    ArrayList<String> places;
+    ArrayList<String> places, currentPlaces;
     Geocoder geocoder;
 
     @Override
@@ -39,11 +39,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         geocoder = new Geocoder(this, Locale.getDefault());
         ArrayList<String> sentPlaces = getIntent().getStringArrayListExtra("places");
-        if(sentPlaces != null){
-            places = sentPlaces;
-        }else{
-            places = new ArrayList<>();
+        if(sentPlaces != null) {
+            currentPlaces = sentPlaces;
         }
+        places = new ArrayList<>();
     }
 
     @Override
@@ -96,12 +95,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                mMap.addMarker(new MarkerOptions().position(latLng).title("your marker"));
                 try {
                     List<Address> addressList;
                     addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude,1);
                     if(addressList.size() > 0){
-                        places.add(addressList.get(0).getAddressLine(0));
+                        String name = addressList.get(0).getAddressLine(0);
+                        places.add(name);
+                        mMap.addMarker(new MarkerOptions().position(latLng).title(name));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -109,18 +109,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        for(int i = 0 ; i<places.size() ; i++){
+        for(int i = 0 ; i<currentPlaces.size() ; i++){
             try {
-                geocoder.getFromLocationName(places.get(i),1);
+                List<Address> addressList = geocoder.getFromLocationName(currentPlaces.get(i),1);
+                if(addressList.size() > 0){
+                    double lat = addressList.get(0).getLatitude();
+                    double lng = addressList.get(0).getLongitude();
+                    LatLng place = new LatLng(lat,lng);
+                    String title = addressList.get(0).getAddressLine(0);
+                    mMap.addMarker(new MarkerOptions().position(place).title(title));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(place));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
 }
