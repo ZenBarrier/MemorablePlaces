@@ -4,23 +4,43 @@ import android.content.Intent;
 import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    Geocoder geocoder;
     ArrayList<String> places;
     ListView listView;
+    ArrayAdapter<String> adapter;
 
     public void addPlace(View view){
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-        startActivity(intent);
+        intent.putStringArrayListExtra("places", places);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.i("request code",requestCode+"");
+        if(requestCode == 1){
+            Log.i("result code",resultCode+"");
+            if(resultCode == RESULT_OK){
+                ArrayList<String> dataPlaces = data.getStringArrayListExtra("places");
+                if(dataPlaces != null){
+                    places.addAll(dataPlaces);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        }
     }
 
     @Override
@@ -30,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listView);
 
-        geocoder = new Geocoder(this, Locale.getDefault());
         places = new ArrayList<>();
+        places.add("herro");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, places);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, places);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
