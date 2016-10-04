@@ -30,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i("request code",requestCode+"");
         if(requestCode == 1){
-            Log.i("result code",resultCode+"");
             if(resultCode == RESULT_OK){
                 ArrayList<String> dataPlaces = data.getStringArrayListExtra("places");
                 if(dataPlaces != null){
@@ -51,14 +49,16 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
 
         places = new ArrayList<>();
-        places.add("herro");
 
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, places);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                intent.putExtra("selectedPlace",places.get(position));
+                intent.putStringArrayListExtra("places", places);
+                startActivityForResult(intent, 1);
             }
         });
     }

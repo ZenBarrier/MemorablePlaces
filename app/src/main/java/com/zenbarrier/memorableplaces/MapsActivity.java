@@ -41,6 +41,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArrayList<String> sentPlaces = getIntent().getStringArrayListExtra("places");
         if(sentPlaces != null) {
             currentPlaces = sentPlaces;
+        }else{
+            currentPlaces = new ArrayList<>();
         }
         places = new ArrayList<>();
     }
@@ -97,8 +99,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onMapLongClick(LatLng latLng) {
                 try {
                     List<Address> addressList;
-                    addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude,1);
-                    if(addressList.size() > 0){
+                    addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                    if (addressList.size() > 0) {
                         String name = addressList.get(0).getAddressLine(0);
                         places.add(name);
                         mMap.addMarker(new MarkerOptions().position(latLng).title(name));
@@ -109,13 +111,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        for(int i = 0 ; i<currentPlaces.size() ; i++){
+        for (int i = 0; i < currentPlaces.size(); i++) {
             try {
-                List<Address> addressList = geocoder.getFromLocationName(currentPlaces.get(i),1);
-                if(addressList.size() > 0){
+                List<Address> addressList = geocoder.getFromLocationName(currentPlaces.get(i), 1);
+                if (addressList.size() > 0) {
                     double lat = addressList.get(0).getLatitude();
                     double lng = addressList.get(0).getLongitude();
-                    LatLng place = new LatLng(lat,lng);
+                    LatLng place = new LatLng(lat, lng);
                     String title = addressList.get(0).getAddressLine(0);
                     mMap.addMarker(new MarkerOptions().position(place).title(title));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(place));
@@ -124,6 +126,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 e.printStackTrace();
             }
         }
+        String selectedPlace = getIntent().getStringExtra("selectedPlace");
+        if (selectedPlace != null) {
+            List<Address> addressList = null;
+            try {
+                addressList = geocoder.getFromLocationName(selectedPlace, 1);
+                if (addressList.size() > 0) {
+                    double lat = addressList.get(0).getLatitude();
+                    double lng = addressList.get(0).getLongitude();
+                    LatLng place = new LatLng(lat, lng);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 10));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
 }
